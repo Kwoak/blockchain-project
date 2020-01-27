@@ -2,15 +2,10 @@
 var CryptoJS = require('crypto-js');
 var express = require('express');
 var bodyParser = require('body-parser');
-var WebSocket = require('ws');
 
 var creatorID = 'Kwoak';
-var http_port = 3001;
-var p2p_port = 6001;
-var initialPeers = process.env.PEERS ? process.env.PEERS.split(',') : [];
-
-var previousId = 0;
-var previousHash = '0';
+var http_port = process.argv[2] || 3000;
+var p2p_port = 6002;
 
 class Block {
     constructor(id, previousHash, data, hash, creatorID) {
@@ -18,33 +13,29 @@ class Block {
         this.previousHash = previousHash;
 
         // soit data directement selon l'objet reçu
-        this.data = {
-            pagenumber: [data.pagenumber[0], data.pagenumber[1], data.pagenumber[2], data.pagenumber[3], data.pagenumber[4]],
-            text: [data.text[0], data.text[1], data.text[2], data.text[3], data.text[4]]
-        };
+        this.data = data;
 
         this.hash = hash;
         this.creatorID = creatorID;
     }
 }
 
-var sockets = [];
-var MessageType = {
-    QUERY_LATEST: 0,
-    QUERY_ALL: 1,
-    RESPONSE_BLOCKCHAIN: 2
-};
+class BlockchainPeer {
+    constructor(url) {
+        this.url = url;
+    }
+}
+
+var nodes = [];
 
 var calculateHash = data => {
-    return CryptoJS.SHA256(data).toString();
+    return CryptoJS.SHA256(JSON.stringify(data)).toString();
 };
 
 var getGenesisBlock = () => {
-    previousId = 1;
-    previousHash = '0';
     const data = {
-        pagenumber: [6, 7, 8, 9, 10],
-        text: ['a', 'b', 'c', 'd', 'e']
+        pagenumber: [],
+        text: []
     };
     return new Block(0, '0', data, calculateHash(data), creatorID);
 };
@@ -56,61 +47,43 @@ var initHttpServer = () => {
     app.use(bodyParser.json());
 
     app.get('/blocks', (req, res) => res.send(JSON.stringify(blockchain)));
-    app.post('/mineBlock', (req, res) => {
+    app.post('/addBlock', (req, res) => {
         var newBlock = generateNextBlock(req.body.data);
         addBlock(newBlock);
-        broadcast(responseLatestMsg());
         console.log('block ajouté : ' + JSON.stringify(newBlock));
         res.send();
     });
-    app.get('/peers', (req, res) => {
-        res.send(sockets.map(s => s._socket.remoteAddress + ':' + s._socket.remotePort));
-    });
+
     app.post('/addPeer', (req, res) => {
-        connectToPeers([req.body.peer]);
-        res.send();
+        let nodeList = req.body.urls;
+        if (!nodeList) return res.sendStatus(500);
+        nodeList.forEach(n => {
+            if (n.url !== req.headers.host) {
+                let node = new BlockchainPeer(n.url);
+                console.log(n.url);
+                nodes.push(node);
+            }
+        });
+
+        res.json(nodes);
+    });
+
+    app.get('/peers', (req, res) => {
+        if (nodes.length < 1) return res.send('No Nodes');
+        let count = 0;
+        nodes.forEach((n, i, nodes) => {
+            let url = `http://${n.url}/blocks`;
+            fetch(url)
+                .then(r => r.json())
+                .then(otherChain => {
+                    count += 1;
+                    if (blockchain.blocks.length < otherChain.blocks.length) blockchain = otherChain;
+                    if (count == nodes.length) return res.send(blockchain);
+                })
+                .catch(err => res.send(err));
+        });
     });
     app.listen(http_port, () => console.log('Écoute HTTP sur le port : ' + http_port));
-};
-
-var initP2PServer = () => {
-    var server = new WebSocket.Server({ port: p2p_port });
-    server.on('connection', ws => initConnection(ws));
-    console.log('Écoute du port websocket p2p sur : ' + p2p_port);
-};
-
-var initConnection = ws => {
-    sockets.push(ws);
-    initMessageHandler(ws);
-    initErrorHandler(ws);
-    write(ws, queryChainLengthMsg());
-};
-
-var initMessageHandler = ws => {
-    ws.on('message', data => {
-        var message = JSON.parse(data);
-        console.log('Message Reçu' + JSON.stringify(message));
-        switch (message.type) {
-            case MessageType.QUERY_LATEST:
-                write(ws, responseLatestMsg());
-                break;
-            case MessageType.QUERY_ALL:
-                write(ws, responseChainMsg());
-                break;
-            case MessageType.RESPONSE_BLOCKCHAIN:
-                handleBlockchainResponse(message);
-                break;
-        }
-    });
-};
-
-var initErrorHandler = ws => {
-    var closeConnection = ws => {
-        console.log('échec de la connexion au pair : ' + ws.url);
-        sockets.splice(sockets.indexOf(ws), 1);
-    };
-    ws.on('close', () => closeConnection(ws));
-    ws.on('error', () => closeConnection(ws));
 };
 
 var generateNextBlock = blockData => {
@@ -141,78 +114,6 @@ var isValidNewBlock = (newBlock, previousBlock) => {
     return true;
 };
 
-var connectToPeers = newPeers => {
-    newPeers.forEach(peer => {
-        var ws = new WebSocket(peer);
-        ws.on('open', () => initConnection(ws));
-        ws.on('error', () => {
-            console.log('échec de la connexion');
-        });
-    });
-};
-
-var handleBlockchainResponse = message => {
-    var receivedBlocks = JSON.parse(message.data).sort((b1, b2) => b1.id - b2.id);
-    var latestBlockReceived = receivedBlocks[receivedBlocks.length - 1];
-    var latestBlockHeld = getLatestBlock();
-    if (latestBlockReceived.id > latestBlockHeld.id) {
-        console.log('Dernier block de la blockchain : ' + latestBlockHeld.id + '. Block reçu par le pair : ' + latestBlockReceived.id);
-        if (latestBlockHeld.hash === latestBlockReceived.previousHash) {
-            console.log('Nous pouvons appondre le block reçu à notre chaîne');
-            blockchain.push(latestBlockReceived);
-            broadcast(responseLatestMsg());
-        } else if (receivedBlocks.length === 1) {
-            console.log('Nous devons interroger notre chaîne depuis notre pair');
-            broadcast(queryAllMsg());
-        } else {
-            console.log('La blockchain reçue est plus longue que la blockchain actuelle');
-            replaceChain(receivedBlocks);
-        }
-    } else {
-        console.log('La blockchain reçue est plus courte que la blockchain actuelle. Ne rien faire.');
-    }
-};
-
-var replaceChain = newBlocks => {
-    if (isValidChain(newBlocks) && newBlocks.length > blockchain.length) {
-        console.log('La blockchain reçue est valide. Remplacer la blockchain actuelle par la blockchain reçue.');
-        blockchain = newBlocks;
-        broadcast(responseLatestMsg());
-    } else {
-        console.log('La blockchain reçue est invalide.');
-    }
-};
-
-var isValidChain = blockchainToValidate => {
-    if (JSON.stringify(blockchainToValidate[0]) !== JSON.stringify(getGenesisBlock())) {
-        return false;
-    }
-    var tempBlocks = [blockchainToValidate[0]];
-    for (var i = 1; i < blockchainToValidate.length; i++) {
-        if (isValidNewBlock(blockchainToValidate[i], tempBlocks[i - 1])) {
-            tempBlocks.push(blockchainToValidate[i]);
-        } else {
-            return false;
-        }
-    }
-    return true;
-};
-
 var getLatestBlock = () => blockchain[blockchain.length - 1];
-var queryChainLengthMsg = () => ({ type: MessageType.QUERY_LATEST });
-var queryAllMsg = () => ({ type: MessageType.QUERY_ALL });
-var responseChainMsg = () => ({
-    type: MessageType.RESPONSE_BLOCKCHAIN,
-    data: JSON.stringify(blockchain)
-});
-var responseLatestMsg = () => ({
-    type: MessageType.RESPONSE_BLOCKCHAIN,
-    data: JSON.stringify([getLatestBlock()])
-});
 
-var write = (ws, message) => ws.send(JSON.stringify(message));
-var broadcast = message => sockets.forEach(socket => write(socket, message));
-
-connectToPeers(initialPeers);
 initHttpServer();
-initP2PServer();
