@@ -2,10 +2,10 @@
 var CryptoJS = require('crypto-js');
 var express = require('express');
 var bodyParser = require('body-parser');
+var fetch = require('node-fetch');
 
 var creatorID = 'Kwoak';
 var http_port = process.argv[2] || 3000;
-var p2p_port = 6002;
 
 class Block {
     constructor(id, previousHash, data, hash, creatorID) {
@@ -69,6 +69,8 @@ var initHttpServer = () => {
     });
 
     app.get('/peers', (req, res) => {
+        // res.send(nodes);
+
         if (nodes.length < 1) return res.send('No Nodes');
         let count = 0;
         nodes.forEach((n, i, nodes) => {
@@ -77,12 +79,13 @@ var initHttpServer = () => {
                 .then(r => r.json())
                 .then(otherChain => {
                     count += 1;
-                    if (blockchain.blocks.length < otherChain.blocks.length) blockchain = otherChain;
+                    if (blockchain.length < otherChain.length) blockchain = otherChain;
                     if (count == nodes.length) return res.send(blockchain);
                 })
                 .catch(err => res.send(err));
         });
     });
+
     app.listen(http_port, () => console.log('Écoute HTTP sur le port : ' + http_port));
 };
 
