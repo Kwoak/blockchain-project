@@ -7,3 +7,4 @@ class Block {
         this.hash = hash.toString();
     }
 }
+module.exports = Block;
