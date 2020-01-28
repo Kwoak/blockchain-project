@@ -52,8 +52,9 @@ if __name__ == '__main__':
             f.write(pdf_text)
         print('-- File written here: {}'.format(file))
 
-with open(sys.argv[4], 'r') as file:
-    data = file.read().replace('  ', '\n\n')
-    data = data.replace('', '\n\n')
+with open(sys.argv[4], 'r') as f:
+    data = f.read().replace('  ', '\n\n')
+    data = data.replace('\n ', '\n\n')
+    data = data.replace('', '||\n')
     new = open(sys.argv[4],'w')
     new.write(data)
