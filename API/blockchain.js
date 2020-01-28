@@ -11,10 +11,7 @@ class Block {
     constructor(id, previousHash, data, hash, creatorID) {
         this.id = id;
         this.previousHash = previousHash;
-
-        // soit data directement selon l'objet reçu
         this.data = data;
-
         this.hash = hash;
         this.creatorID = creatorID;
     }
@@ -55,12 +52,12 @@ var initHttpServer = () => {
     });
 
     app.post('/addPeer', (req, res) => {
-        let nodeList = req.body.urls;
-        if (!nodeList) return res.sendStatus(500);
+        const nodeList = req.body.urls;
+        if (!nodeList) return res.sendStatus(400);
         nodeList.forEach(n => {
-            if (n.url !== req.headers.host) {
-                let node = new BlockchainPeer(n.url);
-                console.log(n.url);
+            const exists = nodes.some(p => p.url === n.url);
+            if (n.url !== req.headers.host && !exists) {
+                const node = new BlockchainPeer(n.url);
                 nodes.push(node);
             }
         });
@@ -68,7 +65,7 @@ var initHttpServer = () => {
         res.json(nodes);
     });
 
-    app.get('/peers', (req, res) => {
+    app.get('/synchronize', (req, res) => {
         // res.send(nodes);
 
         if (nodes.length < 1) return res.send('No Nodes');
