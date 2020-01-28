@@ -3,10 +3,10 @@ var CryptoJS = require('crypto-js');
 var express = require('express');
 var bodyParser = require('body-parser');
 var fetch = require('node-fetch');
-var spawn = require('child_process').spawn;
 
 var creatorID = 'Kwoak';
 var http_port = process.argv[2] || 3000;
+// var http_ports = process.argv || [3000];
 
 class Block {
     constructor(id, previousHash, data, hash, creatorID) {
@@ -44,39 +44,39 @@ var initHttpServer = () => {
     app.use(bodyParser.json());
 
     app.get('/blocks', (req, res) => res.send(JSON.stringify(blockchain)));
+
     app.post('/addBlock', (req, res) => {
-        var process = spawn('python', ['../ALGO/exect.py', req.query.startingPageNumber]);
-
-        // Takes stdout data from script which executed
-        // with arguments and send this data to res object
+        var spawn = require('child_process').spawn;
+        var process = spawn('python', ['../ALGO/getFilePage.py', req.query.number]);
         process.stdout.on('data', function(data) {
+            console.log('on est là ?');
             res.send(data);
-
-            // var newBlock = generateNextBlock(req.body.data);
-            // addBlock(newBlock);
-            // res.send();
-        });
-    });
-
-    app.post('/addPeer', (req, res) => {
-        const nodeList = req.body.urls;
-        if (!nodeList) return res.sendStatus(400);
-        nodeList.forEach(n => {
-            const exists = nodes.some(p => p.url === n.url);
-            if (n.url !== req.headers.host && !exists) {
-                const node = new BlockchainPeer(n.url);
-                nodes.push(node);
-            }
         });
 
-        res.json(nodes);
+        // var newBlock = generateNextBlock(req.body.data);
+        // addBlock(newBlock);
+        // res.send();
     });
+
+    // app.post('/addPeer', (req, res) => {
+    //     const nodeList = req.body.urls;
+    //     if (!nodeList) return res.sendStatus(400);
+    //     nodeList.forEach(n => {
+    //         const exists = nodes.some(p => p.url === n.url);
+    //         if (n.url !== req.headers.host && !exists) {
+    //             const node = new BlockchainPeer(n.url);
+    //             nodes.push(node);
+    //         }
+    //     });
+
+    //     res.json(nodes);
+    // });
 
     app.get('/synchronize', (req, res) => {
         if (nodes.length < 1) return res.send('No peers connected');
         let count = 0;
-        nodes.forEach((n, i, nodes) => {
-            let url = `http://${n.url}/blocks`;
+        http_ports.forEach((n, i, nodes) => {
+            let url = `http://localhost:${n.url}/blocks`;
             fetch(url)
                 .then(r => r.json())
                 .then(otherChain => {
@@ -88,7 +88,9 @@ var initHttpServer = () => {
         });
     });
 
+    // http_ports.forEach(http_port => {
     app.listen(http_port, () => console.log('Écoute HTTP sur le port : ' + http_port));
+    // });
 };
 
 var generateNextBlock = blockData => {
