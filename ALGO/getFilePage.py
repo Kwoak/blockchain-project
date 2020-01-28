@@ -32,8 +32,6 @@ def triPage(r):
                 i2 -= 1
                 debT += '  '
         if row2 == str(inputPage)+'||' or numPage == maxPage:
-            new = open("trap2.txt", "w")
-            new.write(debP + debT + fin)
             print(debP + debT + fin)
             exit(2)
 

@@ -1,4 +1,0 @@
-{
-	"pageNumber":[1, 2, 3, 4, 5],
-	"texte":[" Guy de Maupassant Bel-Ami            ", "    Guy de Maupassant Bel-Ami    roman                        La Bibliothèque électronique du Québec Collection À tous les vents Volume 510 : version 1.01    ", " Du même auteur, à la Bibliothèque  Mademoiselle Fifi Contes de la bécasse Pierre et Jean Sur l’eau La maison Tellier La petite Roque Une vie Fort comme la mort Clair de lune Miss Harriet La main gauche Yvette L’inutile beauté Monsieur Parent Le Horla Les soeurs Rondoli Le docteur Héraclius Gloss et autres contes Les dimanches d’un bourgeois de Paris Le rosier de Madame Husson Contes du jour et de la nuit La vie errante Notre coeur    ", "          Bel-Ami      Édition de référence : Éditions Rencontre, Lausanne. Texte établi et présenté par Gilbert Sigaux.    ", "        Première partie    "]
-}
