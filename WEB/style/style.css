@@ -1,3 +1,17 @@
+@font-face {
+    font-family: "Roboto-Light";
+    src: url("fonts/Roboto-Light.ttf");
+    }
+
+h1, h2, p, li {
+    font-family: "Roboto-Light";
+    font-size: 16px;
+}
+
+body {
+    background-image: linear-gradient(to right bottom, #006fff, #009dff, #00bdff, #00d7d7, #12eba9);
+}
+
 .global-panel {
     display: flex;
     flex-direction: column;
@@ -28,6 +42,7 @@
     width: 500px;
     padding: 5px;
     border: 1px solid grey;
+    border-radius: 10px;
 }
 
 .book-text {
@@ -48,11 +63,11 @@
 
 #next {
     margin-left: 60%;
-    color: royalblue;
+    width: 100px;
 }
 
 #previous {
-    color: royalblue;
+    width: 100px;
 }
 
 @media (min-width: 600px) and (max-width: 1280px) {
