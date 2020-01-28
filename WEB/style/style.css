@@ -1,3 +1,17 @@
+@font-face {
+    font-family: "Roboto-Light";
+    src: url("fonts/Roboto-Light.ttf");
+    }
+
+h1, h2, p, li {
+    font-family: "Roboto-Light";
+    font-size: 16px;
+}
+
+body {
+    background-image: linear-gradient(to right bottom, #006fff, #009dff, #00bdff, #00d7d7, #12eba9);
+}
+
 .global-panel {
     display: flex;
     flex-direction: column;
@@ -24,9 +38,11 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    text-align: justify;
     width: 500px;
     padding: 5px;
     border: 1px solid grey;
+    border-radius: 10px;
 }
 
 .book-text {
@@ -40,5 +56,79 @@
     align-items: center;
 }
 
-@media (min-width: 1280px) {
+#pagesbutton {
+    display: flex;
+    flex-direction: row;
+}
+
+#next {
+    margin-left: 60%;
+    width: 100px;
+}
+
+#previous {
+    width: 100px;
+}
+
+@media (min-width: 600px) and (max-width: 1280px) {
+    .global-container {
+        width: 200px;
+        flex-direction: column-reverse;
+        justify-content: space-around;
+        align-items: center;
+        flex-basis: auto;
+    }
+
+    .left-panel {
+        width: 500px;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        flex-basis: auto;
+    }
+}
+
+
+ @media (max-width: 600px) {
+    .global-container {
+        width: 100px;
+        flex-direction: column-reverse;
+        justify-content: space-around;
+        align-items: center;
+        flex-basis: auto;
+    }
+
+    .left-panel {
+        width: 250px;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        flex-basis: auto;
+    }
+
+    .main-title {
+        text-align: center;
+    }
+}
+
+@media (max-width: 450px) {
+    .global-container {
+        width: 50px;
+        flex-direction: column-reverse;
+        justify-content: space-around;
+        align-items: center;
+        flex-basis: auto;
+    }
+
+    .left-panel {
+        width: 125px;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        flex-basis: auto;
+    }
+
+    .main-title {
+        text-align: center;
+    }
 }

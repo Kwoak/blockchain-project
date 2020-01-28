@@ -1,34 +1,84 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8" />
-        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>BlockChain Project</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="stylesheet" type="text/css" media="screen" href="style/style.css" />
-        <script src="script/main.js"></script>
-    </head>
-    <body>
-        <div class="global-panel">
-            <h1 class="main-title">
-                Lecteur de BlockChain
-            </h1>
-            <div class="global-container">
-                <div class="left-panel">
-                    <p class="book-text">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Odio commodi pariatur quasi voluptates, quod dolore ipsam unde consequatur, provident veritatis molestias ab sequi aliquid nisi. Tempore hic sint non deleniti?</p>
-                </div>
-                <div class="right-panel">
-                    <div class="block-infos">
-                        <h2>Page actuelle</h2>
-                        <ul>
-                            <li>Numéro de la page</li>
-                            <li>Hash</li>
-                            <li>Id Contributeur</li>
-                            <li>Nonce</li>
-                        </ul>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>BlockChain Project</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" media="screen" href="style/style.css" />
+    <script src="script/main.js"></script>
+</head>
+
+<body>
+    <div class="global-panel">
+        <h1 class="main-title">
+            Lecteur de BlockChain
+        </h1>
+        <div class="global-container">
+            <div class="left-panel">
+                <div>
+                    <p class="book-text">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam convallis massa a orci congue
+                        commodo. Morbi tincidunt, libero vel ultrices facilisis, risus ante dictum nunc, ut tincidunt
+                        nibh dui eget nisi. Quisque quis augue vitae orci congue posuere ut at eros. Cras at arcu ipsum.
+                        Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Nam
+                        maximus consectetur eros, quis euismod enim venenatis ut. Nam porta et lacus at malesuada. Donec
+                        eget massa tincidunt, venenatis purus nec, faucibus arcu. Proin lacinia, mi sed placerat tempus,
+                        metus risus semper est, non mollis urna diam nec turpis. Ut non urna quis tellus laoreet
+                        fringilla.
+
+                        Phasellus ullamcorper bibendum risus, et facilisis erat accumsan et. Ut a arcu ornare, tempor ex
+                        eu, tempor ligula. Duis velit magna, iaculis luctus rhoncus quis, efficitur non ex. Praesent
+                        commodo pellentesque nunc. Phasellus rutrum dictum velit. Ut vitae augue vitae mauris
+                        ullamcorper rhoncus. Curabitur consequat ullamcorper maximus. Nulla egestas, mi eget interdum
+                        ullamcorper, sem neque pretium tellus, ut tristique nunc mi et arcu. Proin ac erat nec lacus
+                        finibus consectetur. Aenean fermentum turpis tincidunt posuere placerat. Aliquam vitae erat ut
+                        elit ullamcorper auctor. Nam efficitur, tellus a hendrerit semper, quam ligula tincidunt tellus,
+                        ac sagittis nunc eros id urna. Ut congue sit amet quam at porttitor. Phasellus in orci vitae
+                        elit tristique aliquam. Donec ac nisi lorem.
+
+                        Ut placerat nec tortor et sodales. Nullam bibendum risus ac molestie sollicitudin. Praesent
+                        facilisis nisl tempor feugiat placerat. Vivamus lorem orci, rhoncus dapibus tortor vitae, mollis
+                        maximus orci. Praesent id nunc elementum, accumsan lacus quis, hendrerit metus. Etiam consequat
+                        metus vel lacus mollis rhoncus. Pellentesque erat lorem, blandit vitae lacinia sed, efficitur ac
+                        urna. Vivamus congue commodo sapien quis ornare.
+
+                        Vestibulum tempus erat ut lacus tincidunt volutpat. Maecenas dignissim metus sed est rhoncus, at
+                        egestas mi sodales. Phasellus bibendum hendrerit sapien, id condimentum lacus. Phasellus congue
+                        iaculis ipsum, sed tempus est rutrum eu. Sed nec magna vel erat facilisis tempor. Phasellus
+                        bibendum felis non mauris aliquet, eu porttitor dolor vulputate. Etiam tempor rhoncus orci id
+                        vehicula. Suspendisse mi arcu, laoreet a auctor ut, tempus non nisi.
+
+                        Phasellus sapien tellus, laoreet a gravida eu, dictum non nulla. Donec vel leo felis. Nulla
+                        pulvinar iaculis lorem ut accumsan. Duis efficitur neque sed lectus vestibulum consectetur.
+                        Pellentesque placerat tempor urna, sit amet tincidunt nisl vehicula in. Suspendisse in dui non
+                        magna rhoncus rutrum. Donec eu posuere nisi, in viverra ligula.
+
+                        Vivamus hendrerit porttitor ante, eget tincidunt tellus vehicula nec. In hac habitasse platea
+                        dictumst. Integer ac porttitor nisi. Nulla interdum fringilla urna, eu cursus nunc malesuada id.
+                        Sed tempor felis nec dui ultricies, at facilisis purus semper. Etiam lacinia tellus ante, ut
+                        rhoncus augue feugiat eleifend. Etiam varius porttitor ex sit amet porta. Sed varius feugiat
+                        ipsum vel tempus.</p>
+                    <div id='pagesbutton'>
+                        <button id="previous">Page précédente</button>
+                        <button id="next">Page suivante</button>
                     </div>
                 </div>
             </div>
+            <div class="right-panel">
+                <div class="block-infos">
+                    <h2>Page actuelle</h2>
+                    <ul>
+                        <li>Numéro de la page</li>
+                        <li>Hash</li>
+                        <li>Id Contributeur</li>
+                        <li>Nonce</li>
+                    </ul>
+                </div>
+            </div>
         </div>
-    </body>
+    </div>
+</body>
+
 </html>
