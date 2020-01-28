@@ -3,6 +3,7 @@ var CryptoJS = require('crypto-js');
 var express = require('express');
 var bodyParser = require('body-parser');
 var fetch = require('node-fetch');
+var spawn = require('child_process').spawn;
 
 var creatorID = 'Kwoak';
 var http_port = process.argv[2] || 3000;
@@ -44,9 +45,17 @@ var initHttpServer = () => {
 
     app.get('/blocks', (req, res) => res.send(JSON.stringify(blockchain)));
     app.post('/addBlock', (req, res) => {
-        var newBlock = generateNextBlock(req.body.data);
-        addBlock(newBlock);
-        res.send();
+        var process = spawn('python', ['../ALGO/exect.py', req.query.startingPageNumber]);
+
+        // Takes stdout data from script which executed
+        // with arguments and send this data to res object
+        process.stdout.on('data', function(data) {
+            res.send(data);
+
+            // var newBlock = generateNextBlock(req.body.data);
+            // addBlock(newBlock);
+            // res.send();
+        });
     });
 
     app.post('/addPeer', (req, res) => {
