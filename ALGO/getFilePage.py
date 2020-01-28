@@ -1,6 +1,6 @@
 import sys
 
-data = open("trap.txt","r")
+data = open("belAmi.txt","r")
 tbl = data.read().split('\n')
 
 def triPage(r):
