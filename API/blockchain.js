@@ -23,8 +23,6 @@ class BlockchainPeer {
     }
 }
 
-var nodes = [];
-
 var calculateHash = data => {
     return CryptoJS.SHA256(JSON.stringify(data)).toString();
 };
@@ -37,6 +35,7 @@ var getGenesisBlock = () => {
     return new Block(0, '0', data, calculateHash(data), creatorID);
 };
 
+var nodes = [];
 var blockchain = [getGenesisBlock()];
 
 var initHttpServer = () => {
@@ -47,7 +46,6 @@ var initHttpServer = () => {
     app.post('/addBlock', (req, res) => {
         var newBlock = generateNextBlock(req.body.data);
         addBlock(newBlock);
-        console.log('block ajouté : ' + JSON.stringify(newBlock));
         res.send();
     });
 
@@ -66,9 +64,7 @@ var initHttpServer = () => {
     });
 
     app.get('/synchronize', (req, res) => {
-        // res.send(nodes);
-
-        if (nodes.length < 1) return res.send('No Nodes');
+        if (nodes.length < 1) return res.send('No peers connected');
         let count = 0;
         nodes.forEach((n, i, nodes) => {
             let url = `http://${n.url}/blocks`;
