@@ -40,17 +40,12 @@ if __name__ == '__main__':
     source = args["source"]
     file = args["file"]
 
-    # EXTRACTING TEXT
-    print('-- Extracting')
     pdf_text = pdf2xt(source)
-    print('-- Output: {}'.format(pdf_text))
 
     # SAVING TEXT IN .TXT FILE
     if file:
-        print('-- Writing file')
         with open(file, "wb") as f:
             f.write(pdf_text)
-        print('-- File written here: {}'.format(file))
 
 with open(sys.argv[4], 'r') as f:
     data = f.read().replace('  ', '\n\n')

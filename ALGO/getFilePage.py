@@ -3,22 +3,26 @@ import sys
 data = open("belAmi.txt","r")
 tbl = data.read().split('\n')
 
+maxPage = 0
+for row in tbl:
+    if '||' in row:
+        maxPage += 1
+
 def triPage(r):
     inputPage = int(sys.argv[2])+5
     debP = "{\n\t\"pageNumber\":["
     debT = "],\n\t\"texte\":[\""
     fin = "\"]\n}"
+    numPage = 0
     nRow = r+1
     i = 0
     i2 = 0
-    i3=0
     for row2 in tbl[nRow:len(tbl)]:
-        i3+=1
         if '||' in row2:
             i += 1
             numPage = i + int(sys.argv[2])
             debP += str(numPage)
-            if i < 5 :
+            if i < 5 and numPage != maxPage:
                 debP += ', '
                 debT += '\", \"'
         else :
@@ -27,11 +31,13 @@ def triPage(r):
             if i2 - i == 2 :
                 i2 -= 1
                 debT += '  '
-            print(debT+" "+str(i3))
-        if row2 == str(inputPage)+'||':
-            new = open(sys.argv[1], 'w')
-            new.write(debP+debT+fin)
+        if row2 == str(inputPage)+'||' or numPage == maxPage:
+            new = open("trap2.txt", "w")
+            new.write(debP + debT + fin)
+            print(debP + debT + fin)
             exit(2)
+
+
 
 nCar = -1
 for row in tbl:
