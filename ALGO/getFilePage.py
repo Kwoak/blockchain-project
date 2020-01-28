@@ -3,16 +3,6 @@ import sys
 data = open("trap.txt","r")
 tbl = data.read().split('\n')
 
-def triPage1(r):
-    inputPage = int(sys.argv[2])+5
-    print("Trouve !!!")
-    nRow = r+1
-    new = open(sys.argv[1],'w')
-    for row2 in tbl[nRow:len(tbl)]:
-        new.write(row2+"\n")
-        if row2 == str(inputPage)+'||':
-            exit(2)
-
 def triPage(r):
     inputPage = int(sys.argv[2])+5
     debP = "{\n\t\"pageNumber\":["
@@ -23,7 +13,6 @@ def triPage(r):
     i2 = 0
     bool = False
     for row2 in tbl[nRow:len(tbl)]:
-        print(row2+"\n")
         if bool == False:
             bool = True
             i2 += 1
