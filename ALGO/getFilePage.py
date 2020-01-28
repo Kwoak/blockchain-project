@@ -9,7 +9,7 @@ for row in tbl:
         maxPage += 1
 
 def triPage(r):
-    inputPage = int(sys.argv[2])+5
+    inputPage = int(sys.argv[1])+5
     debP = "{\n\t\"pageNumber\":["
     debT = "],\n\t\"texte\":[\""
     fin = "\"]\n}"
@@ -20,7 +20,7 @@ def triPage(r):
     for row2 in tbl[nRow:len(tbl)]:
         if '||' in row2:
             i += 1
-            numPage = i + int(sys.argv[2])
+            numPage = i + int(sys.argv[1])
             debP += str(numPage)
             if i < 5 and numPage != maxPage:
                 debP += ', '
@@ -32,17 +32,18 @@ def triPage(r):
                 i2 -= 1
                 debT += '  '
         if row2 == str(inputPage)+'||' or numPage == maxPage:
-            print(debP + debT + fin)
-            exit(2)
+            return debP + debT + fin
 
 
 
 nCar = -1
+res = ""
 for row in tbl:
     nCar += 1
-    inputPage = int(sys.argv[2])+5
-    if row == sys.argv[2] + '||':
-        triPage(tbl.index(row))
-    elif sys.argv[2] == "0":
-        triPage(-1)
+    inputPage = int(sys.argv[1])+5
+    if row == sys.argv[1] + '||':
+        res = triPage(tbl.index(row))
+    elif sys.argv[1] == "0":
+        res = triPage(-1)
+print(res)
 
