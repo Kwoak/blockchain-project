@@ -3,6 +3,7 @@ var CryptoJS = require('crypto-js');
 var express = require('express');
 var bodyParser = require('body-parser');
 var fetch = require('node-fetch');
+let PDFParser = require('pdf2json');
 
 var creatorID = 'Kwoak';
 var http_port = process.argv[2] || 3000;
@@ -29,15 +30,18 @@ var calculateHash = data => {
 };
 
 var getGenesisBlock = () => {
-    const data = {
-        pagenumber: [],
-        text: []
-    };
+    const data = [
+        {
+            content: [''],
+            idPage: null
+        }
+    ];
     return new Block(0, '0', data, calculateHash(data), creatorID);
 };
 
 var nodes = [];
 var blockchain = [getGenesisBlock()];
+let pageindex = 0;
 
 var initHttpServer = () => {
     var app = express();
@@ -46,9 +50,15 @@ var initHttpServer = () => {
     app.get('/blocks', (req, res) => res.send(JSON.stringify(blockchain)));
 
     app.post('/addBlock', (req, res) => {
-        var newBlock = generateNextBlock(req.body.data);
-        addBlock(newBlock);
-        res.send();
+        const url = `http://localhost:${http_port}/reader`;
+        fetch(url)
+            .then(r => r.json())
+            .then(pagesContent => {
+                var newBlock = generateNextBlock(pagesContent);
+                addBlock(newBlock);
+                res.send();
+            })
+            .catch(err => res.send(err));
     });
 
     app.post('/addPeer', (req, res) => {
@@ -79,6 +89,75 @@ var initHttpServer = () => {
                 })
                 .catch(err => res.send(err));
         });
+    });
+
+    app.get('/resetReader', (req, res) => {
+        pageindex = 0;
+        res.status(200);
+    });
+
+    app.get('/reader', (req, res) => {
+        const pdfParser = new PDFParser();
+        pdfParser.on('pdfParser_dataError', errData => console.error(errData.parserError));
+        pdfParser.on('pdfParser_dataReady', pdfData => {
+            let start = pageindex;
+            const end = pageindex < pdfData.formImage.Pages.length - 5 ? pageindex + 5 : pageindex + (pageindex - pdfData.formImage.Pages.length);
+            let index = 0;
+            let newJson = {
+                data: []
+            };
+
+            while (start < end) {
+                newJson.data.push({
+                    content: [],
+                    idPage: start + 1
+                });
+                let elements = newJson.data[index];
+                let j = 0;
+                while (j < pdfData.formImage.Pages[start].Texts.length) {
+                    elements.content.push(decodeURI(pdfData.formImage.Pages[start].Texts[j].R[0].T));
+                    j++;
+                }
+                start++;
+                index++;
+            }
+            pageindex += 5;
+            res.send(newJson);
+        });
+
+        pdfParser.loadPDF('../ALGO/48PDF.pdf');
+    });
+
+    app.get('/reader/:start?/:end?', (req, res) => {
+        let pdfParser = new PDFParser();
+
+        pdfParser.on('pdfParser_dataError', errData => console.error(errData.parserError));
+        pdfParser.on('pdfParser_dataReady', pdfData => {
+            let start = req.params.start ? req.params.start : 0;
+            let end = req.params.end ? req.params.end : pdfData.formImage.Pages.length;
+            let index = 0;
+            let newJson = {
+                data: []
+            };
+
+            while (start < end) {
+                newJson.data.push({
+                    content: [],
+                    idPage: start
+                });
+                let elements = newJson.data[index];
+                let j = 0;
+                while (j < pdfData.formImage.Pages[start].Texts.length) {
+                    elements.content.push(decodeURI(pdfData.formImage.Pages[start].Texts[j].R[0].T));
+                    j++;
+                }
+                start++;
+                index++;
+            }
+            res.send(newJson);
+        });
+
+        pdfParser.loadPDF('../ALGO/48PDF.pdf');
     });
 
     // http_ports.forEach(http_port => {
