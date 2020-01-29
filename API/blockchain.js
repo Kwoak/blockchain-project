@@ -7,7 +7,6 @@ let PDFParser = require('pdf2json');
 
 var creatorID = 'Kwoak';
 var http_port = process.argv[2] || 3000;
-// var http_ports = process.argv || [3000];
 
 class Block {
     constructor(id, previousHash, data, hash, creatorID) {
@@ -50,8 +49,10 @@ var initHttpServer = () => {
     app.get('/blocks', (req, res) => res.send(JSON.stringify(blockchain)));
 
     app.post('/addBlock', (req, res) => {
-        const url = `http://localhost:${http_port}/reader`;
-        fetch(url)
+        const synchroURL = `http://localhost:${http_port}/synchronize`;
+        const readerURL = `http://localhost:${http_port}/reader`;
+        fetch(synchroURL);
+        fetch(readerURL)
             .then(r => r.json())
             .then(pagesContent => {
                 var newBlock = generateNextBlock(pagesContent);
@@ -85,7 +86,10 @@ var initHttpServer = () => {
                 .then(otherChain => {
                     count += 1;
                     if (blockchain.length < otherChain.length) blockchain = otherChain;
-                    if (count == nodes.length) return res.send(blockchain);
+                    if (count == nodes.length) {
+                        pageindex = (blockchain.length - 1) * 5;
+                        return res.send(blockchain);
+                    }
                 })
                 .catch(err => res.send(err));
         });
@@ -128,41 +132,7 @@ var initHttpServer = () => {
         pdfParser.loadPDF('../ALGO/48PDF.pdf');
     });
 
-    app.get('/reader/:start?/:end?', (req, res) => {
-        let pdfParser = new PDFParser();
-
-        pdfParser.on('pdfParser_dataError', errData => console.error(errData.parserError));
-        pdfParser.on('pdfParser_dataReady', pdfData => {
-            let start = req.params.start ? req.params.start : 0;
-            let end = req.params.end ? req.params.end : pdfData.formImage.Pages.length;
-            let index = 0;
-            let newJson = {
-                data: []
-            };
-
-            while (start < end) {
-                newJson.data.push({
-                    content: [],
-                    idPage: start
-                });
-                let elements = newJson.data[index];
-                let j = 0;
-                while (j < pdfData.formImage.Pages[start].Texts.length) {
-                    elements.content.push(decodeURI(pdfData.formImage.Pages[start].Texts[j].R[0].T));
-                    j++;
-                }
-                start++;
-                index++;
-            }
-            res.send(newJson);
-        });
-
-        pdfParser.loadPDF('../ALGO/48PDF.pdf');
-    });
-
-    // http_ports.forEach(http_port => {
     app.listen(http_port, () => console.log('Écoute HTTP sur le port : ' + http_port));
-    // });
 };
 
 var generateNextBlock = blockData => {
