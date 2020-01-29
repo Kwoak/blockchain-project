@@ -46,37 +46,30 @@ var initHttpServer = () => {
     app.get('/blocks', (req, res) => res.send(JSON.stringify(blockchain)));
 
     app.post('/addBlock', (req, res) => {
-        var spawn = require('child_process').spawn;
-        var process = spawn('python', ['../ALGO/getFilePage.py', req.query.number]);
-        process.stdout.on('data', function(data) {
-            console.log('on est là ?');
-            res.send(data);
-        });
-
-        // var newBlock = generateNextBlock(req.body.data);
-        // addBlock(newBlock);
-        // res.send();
+        var newBlock = generateNextBlock(req.body.data);
+        addBlock(newBlock);
+        res.send();
     });
 
-    // app.post('/addPeer', (req, res) => {
-    //     const nodeList = req.body.urls;
-    //     if (!nodeList) return res.sendStatus(400);
-    //     nodeList.forEach(n => {
-    //         const exists = nodes.some(p => p.url === n.url);
-    //         if (n.url !== req.headers.host && !exists) {
-    //             const node = new BlockchainPeer(n.url);
-    //             nodes.push(node);
-    //         }
-    //     });
+    app.post('/addPeer', (req, res) => {
+        const nodeList = req.body.urls;
+        if (!nodeList) return res.sendStatus(400);
+        nodeList.forEach(n => {
+            const exists = nodes.some(p => p.url === n.url);
+            if (n.url !== req.headers.host && !exists) {
+                const node = new BlockchainPeer(n.url);
+                nodes.push(node);
+            }
+        });
 
-    //     res.json(nodes);
-    // });
+        res.json(nodes);
+    });
 
     app.get('/synchronize', (req, res) => {
         if (nodes.length < 1) return res.send('No peers connected');
         let count = 0;
-        http_ports.forEach((n, i, nodes) => {
-            let url = `http://localhost:${n.url}/blocks`;
+        nodes.forEach((n, i, nodes) => {
+            let url = `http://${n.url}/blocks`;
             fetch(url)
                 .then(r => r.json())
                 .then(otherChain => {
