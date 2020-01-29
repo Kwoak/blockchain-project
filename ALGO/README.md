@@ -1,7 +1,9 @@
-# blockcain-project
+# blockchain-project
 
-# text.txt
-python.exe text.py -s "48PDF.pdf" -f "trap.txt"
+## Lancer les scripts Python
 
-#traite.py
-python.exe text.py trap.txt trap2.txt
+`python.exe exect.py firstPageNumber`
+
+Exemple:
+
+`python.exe exect.py 4`
